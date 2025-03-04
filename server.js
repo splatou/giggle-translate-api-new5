@@ -38,6 +38,7 @@ app.use('/api/detect-language', apiLimiter);
 // Add debug logs
 app.post('/api/explain', async (req, res) => {
   console.log("Received request to /api/explain");
+});
 
 // Middleware
 app.use(cors({
