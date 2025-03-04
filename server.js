@@ -19,16 +19,25 @@ const languageDetectionCache = new NodeCache({ stdTTL: 86400 });
 
 // Configure rate limiting
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute window
-  max: 30, // limit each IP to 30 requests per window
-  standardHeaders: true, // Return rate limit info in headers
-  legacyHeaders: false, // Disable X-RateLimit-* headers
+  windowMs: 1 * 60 * 1000, // 1 minute window (decreased from 15 minutes)
+  max: 5, // limit each IP to 5 requests per window (decreased from 30)
+  standardHeaders: true,
+  legacyHeaders: false,
   message: "Too many requests, please try again later",
+  keyGenerator: function (req) {
+    // Log IP detection
+    console.log("Request IP:", req.ip);
+    return req.ip;
+  }
 });
 
 // Apply rate limiting to API routes
-app.use('/api/detect-language', apiLimiter);
 app.use('/api/explain', apiLimiter);
+app.use('/api/detect-language', apiLimiter);
+
+// Add debug logs
+app.post('/api/explain', async (req, res) => {
+  console.log("Received request to /api/explain");
 
 // Middleware
 app.use(cors({
@@ -142,4 +151,5 @@ app.get('/api/stats', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
 });
