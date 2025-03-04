@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-// Removed: const rateLimit = require('express-rate-limit');
 const { OpenAI } = require('openai');
 const NodeCache = require('node-cache');
 
@@ -16,8 +15,6 @@ const openai = new OpenAI({
 // Initialize cache (TTL: 24 hours)
 const explanationCache = new NodeCache({ stdTTL: 86400 });
 const languageDetectionCache = new NodeCache({ stdTTL: 86400 });
-
-// Removed: Rate limiting middleware and its application to endpoints
 
 // Middleware
 app.use(cors({
@@ -74,7 +71,7 @@ app.post('/api/detect-language', async (req, res) => {
   }
 });
 
-// API endpoint for generating explanations with caching
+// Updated API endpoint for generating explanations with caching
 app.post('/api/explain', async (req, res) => {
   try {
     const { word, age, language } = req.body;
@@ -88,15 +85,25 @@ app.post('/api/explain', async (req, res) => {
       return res.json({ explanation: explanationCache.get(cacheKey) });
     }
     
+    // Build the system prompt
+    let systemPrompt = `You are Giggle Translate, an app that explains words to children.
+The user will provide a word in ${language}.
+Provide a simple, age-appropriate explanation for a ${age}-year-old child.
+Use examples, simple language, and fun comparisons that a ${age}-year-old would understand.
+Keep your explanation concise, under 3 sentences.`;
+    
+    // Add language-specific instruction only when not English
+    if (language.toLowerCase() !== 'english') {
+      systemPrompt += `
+IMPORTANT: Your entire response must be in ${language} language, not in English.`;
+    }
+    
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: `You are Giggle Translate, an app that explains words to children. 
-          Provide a simple, age-appropriate explanation for a ${age}-year-old child in ${language} language.
-          Use examples, simple language, and fun comparisons that a ${age}-year-old would understand.
-          Keep your explanation concise, under 3 sentences.`
+          content: systemPrompt
         },
         {
           role: "user",
