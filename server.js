@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+// Removed: const rateLimit = require('express-rate-limit');
 const { OpenAI } = require('openai');
-const rateLimit = require('express-rate-limit');
 const NodeCache = require('node-cache');
 
 const app = express();
@@ -17,28 +17,7 @@ const openai = new OpenAI({
 const explanationCache = new NodeCache({ stdTTL: 86400 });
 const languageDetectionCache = new NodeCache({ stdTTL: 86400 });
 
-// Configure rate limiting
-const apiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute window (decreased from 15 minutes)
-  max: 30, // limit each IP to 5 requests per window (decreased from 30)
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: "Too many requests, please try again later",
-  keyGenerator: function (req) {
-    // Log IP detection
-    console.log("Request IP:", req.ip);
-    return req.ip;
-  }
-});
-
-// Apply rate limiting to API routes
-app.use('/api/explain', apiLimiter);
-app.use('/api/detect-language', apiLimiter);
-
-// Add debug logs
-app.post('/api/explain', async (req, res) => {
-  console.log("Received request to /api/explain");
-});
+// Removed: Rate limiting middleware and its application to endpoints
 
 // Middleware
 app.use(cors({
