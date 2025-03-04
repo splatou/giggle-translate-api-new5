@@ -20,7 +20,7 @@ const languageDetectionCache = new NodeCache({ stdTTL: 86400 });
 // Configure rate limiting
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute window (decreased from 15 minutes)
-  max: 5, // limit each IP to 5 requests per window (decreased from 30)
+  max: 30, // limit each IP to 5 requests per window (decreased from 30)
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests, please try again later",
@@ -41,7 +41,7 @@ app.post('/api/explain', async (req, res) => {
 
 // Middleware
 app.use(cors({
-  origin: 'https://giggletranslate.netlify.app' // Restrict to your frontend domain
+  origin: 'https://giggletranslate.netlify.app', 'http://giggleai.org' // Restrict to your frontend domain
 }));
 app.use(express.json());
 
@@ -151,5 +151,4 @@ app.get('/api/stats', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-});
 });
