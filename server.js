@@ -42,7 +42,7 @@ app.post('/api/explain', async (req, res) => {
 
 // Middleware
 app.use(cors({
-  origin: ['https://giggletranslate.netlify.app', 'https://api.giggleai.org'] // Restrict to your frontend domain
+  origin: ['https://giggletranslate.netlify.app', 'https://api.giggleai.org', 'https://giggleai.org'] // Restrict to your frontend domain
 }));
 app.use(express.json());
 
